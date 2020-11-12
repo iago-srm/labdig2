@@ -1,54 +1,53 @@
 import * as React from 'react';
 import { useCollection } from 'react-firebase-hooks/firestore';
-import { db } from '../../provider/firebase';
-import { useHistory } from "react-router-dom";
-import Loader from 'react-loader-spinner'
-
-import { VagaStyled, VagaIDStyled } from './vaga.component';
-import { VagasContainerStyled, ReturnButtonStyled } from './dashboard.style';
-import { PageTitleStyled, PageHeaderStyled } from '../../style/global';
 import { Row, Grid, Col } from "react-flexbox-grid";
+import { db } from '../../provider/firebase';
+import { Vagas } from './vaga/vaga.component';
+import { PageTitleStyled, PageHeaderStyled } from '../../style/global';
+import { ConsoleBlynk } from './console/console-blynk.component';
 
-const numVagas = 8;
+const numVagas = 6;
 
 export const DashboardPage = () => {
-  const history = useHistory();
 
   const [value, loading] = useCollection(
     db.collection('vagas')
-    // {
-    //   snapshotListenOptions: { includeMetadataChanges: true },
-    // }
   );
 
-  const handleReturnButton = () => {
-    history.push(`/`);
-  };
+  const writeVagas = (vagas: string) => {
+    console.log(vagas,value?.docs);
+    if(vagas.length == numVagas) {
+      vagas.split("").forEach((state, index) => {
+        let ocupada = false;
+        if(parseInt(state)) ocupada = true;
+        // value?.docs.forEach((doc: any, index: number) => {
 
-  // React.useEffect(() => {
-  //   if(value) {
-  //     value.docs.forEach((doc: any) => console.log(doc.data()));
-  //   } 
-  // }, [value]);
+        //   if(Boolean(parseInt(vagas.charAt(index))) != doc.data().ocupada) {
+        //     console.log(index+' virou ' + doc.data.ocupada());
+        //   }
+        // });
+        db.collection('vagas').doc(index.toString()).set({ocupada});
+      });
+    }
+  };
+  
   return (
     <Grid>
       <PageHeaderStyled middle='xs' between='xs'>
-        <ReturnButtonStyled onClick={handleReturnButton}>Home</ReturnButtonStyled>
       </PageHeaderStyled>
       <PageHeaderStyled center='xs'>
         <PageTitleStyled>Dashboard</PageTitleStyled>
       </PageHeaderStyled>
-      <VagasContainerStyled>
-        <Row between='xs'>
-          {Array(6).fill(0).map((i,index) => i+index).map(id => {
-            return (
-              <VagaStyled key={id} ocupada={value?.docs[id].data().ocupada} loading={loading}>
-                {loading ? <Loader type="ThreeDots" color="grey" height={40} width={40}/> : <VagaIDStyled>{id}</VagaIDStyled>}
-              </VagaStyled>
-            )
-          })}
-        </Row>
-      </VagasContainerStyled>
+      <Vagas numVagas={numVagas} loading={loading} vagas={value?.docs.map((doc: any) => doc.data().ocupada)}/>
+      <Row start='xs'>
+      <Col xs={12} sm={6}>
+        <ConsoleBlynk 
+          setVagas={writeVagas}
+          vagas={value?.docs.map((doc: any) => doc.data().ocupada)}
+          // situation={value?.docs.map((doc: any, index: number) => ({ocupada: doc.data().ocupada, timestamp: times[index]}))}
+        />
+      </Col>
+      </Row>
     </Grid>
   );
 }
