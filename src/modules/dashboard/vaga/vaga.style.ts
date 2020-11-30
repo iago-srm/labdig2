@@ -1,8 +1,8 @@
 import * as styled from 'styled-components';
+import { Row } from "react-flexbox-grid";
 
 const ocupadaColor = 'red';
 const vaziaColor = 'green';
-// const loadingColor = 'grey';
 
 interface VagaProps {
   ocupada?: boolean;
@@ -10,13 +10,13 @@ interface VagaProps {
 }
 export const VagaStyled = styled.default.div`
   display: inline-block;
-  margin: 3px;
+  margin: 2px 20px;
   width: 50px;
   height: 70px;
   background-color: ${(props: VagaProps) => props.loading ? 'inherit' : props.ocupada ? ocupadaColor : vaziaColor};
 `;
 
-export const VagasContainerStyled = styled.default.div`
+export const VagasContainerStyled = styled.default(Row)`
   border: 2px solid black;
 `;
 
